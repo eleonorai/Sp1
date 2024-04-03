@@ -1,0 +1,48 @@
+using System;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
+
+namespace WindowManipulationApp
+{
+    public partial class MainForm : Form
+    {
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
+
+        const int WM_CLOSE = 0x0010;
+        const int WM_SETTEXT = 0x000C;
+
+        public MainForm()
+        {
+            InitializeComponent();
+        }
+
+        private void searchButton_Click(object sender, EventArgs e)
+        {
+            string windowTitle = windowTitleTextBox.Text;
+            IntPtr hWnd = FindWindow(null, windowTitle);
+            if (hWnd != IntPtr.Zero)
+            {
+                switch (operationComboBox.SelectedIndex)
+                {
+                    case 0:
+                        string newTitle = newTitleTextBox.Text;
+                        SendMessage(hWnd, WM_SETTEXT, IntPtr.Zero, newTitle);
+                        break;
+                    case 1:
+                        SendMessage(hWnd, WM_CLOSE, IntPtr.Zero, null);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                MessageBox.Show("Вікно не знайдено.", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+    }
+}
